@@ -18,6 +18,7 @@ HEADER = build/header.js
 VERSION = `cat package.json | grep version \
 														| grep -o '[0-9]\.[0-9]\.[0-9]\+'`
 DIST = dist/less-${VERSION}.js
+JSM = dist/less-${VERSION}.jsm
 RHINO = dist/less-rhino-${VERSION}.js
 DIST_MIN = dist/less-${VERSION}.min.js
 
@@ -37,6 +38,20 @@ less:
 	      ${SRC}/browser.js >> ${DIST}
 	@@echo "})(window);" >> ${DIST}
 	@@echo ${DIST} built.
+
+jsm:
+	@@mkdir -p dist
+	@@touch ${JSM}
+	@@cat ${HEADER} | sed s/@VERSION/${VERSION}/ > ${JSM}
+	@@echo "var EXPORTED_SYMBOLS=['less']" >> ${JSM}
+	@@echo "var window = {less: {}};" >> ${JSM}
+	@@cat build/require.js\
+	      ${SRC}/parser.js\
+	      ${SRC}/functions.js\
+	      ${SRC}/colors.js\
+	      ${SRC}/tree/*.js\
+	      ${SRC}/tree.js >> ${JSM}
+	@@echo ${JSM} built.
 
 rhino:
 	@@mkdir -p dist
